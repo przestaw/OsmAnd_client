@@ -21,30 +21,12 @@ gradle assembleRelease
 cp MPChartLib/build/outputs/aar/MPChartLib-release.aar "$osmand_dir/libs/"
 popd
 
-# Build OsmAnd core and copy into libs folder
-
+# Build OsmAnd core (excluding OsmAndCore_androidNativeDebug) and copy into libs folder
 pushd core/wrappers/android/
-# build, assemble, assemble so that native libs are included
-gradle build
-gradle assembleRelease
-gradle assembleRelease
+gradle assembleRelease -x :OsmAndCore_androidNativeDebug:assembleRelease
 cp build/outputs/aar/OsmAndCore_android-release.aar "$osmand_dir/libs/"
 cp NativeCoreRelease/build/outputs/aar/OsmAndCore_androidNativeRelease-release.aar "$osmand_dir/libs/"
 popd
-
-if  [[ "$native_lib_arch" == "armv7" ]]
-then
-    cp core/externals/qtbase-android/upstream.patched.android.clang-armeabi-v7a.shared/jar/QtAndroid.jar "$osmand_dir/libs/"
-    cp core/externals/qtbase-android/upstream.patched.android.clang-armeabi-v7a.shared/jar/QtAndroidBearer.jar "$osmand_dir/libs/"
-elif  [[ "$native_lib_arch" == "arm64" ]]
-then
-    cp core/externals/qtbase-android/upstream.patched.android.clang-arm64-v8a.shared/jar/QtAndroid.jar "$osmand_dir/libs/"
-    cp core/externals/qtbase-android/upstream.patched.android.clang-arm64-v8a.shared/jar/QtAndroidBearer.jar "$osmand_dir/libs/"
-else
-    #x86 or not specified/matching
-    cp core/externals/qtbase-android/upstream.patched.android.clang-x86.shared/jar/QtAndroid.jar "$osmand_dir/libs/"
-    cp core/externals/qtbase-android/upstream.patched.android.clang-x86.shared/jar/QtAndroidBearer.jar "$osmand_dir/libs/"
-fi
 
 # Build OsmAnd patched version of ICU. Remove a bunch of unused data
 # files to keep file size down. Copy into OsmAnd lib dirs.

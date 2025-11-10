@@ -105,28 +105,108 @@ sed -i \
     "$osmand_dir/build-common.gradle"
 rm -r "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/devices/ant"
 rm -r "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/devices/sensors/ant"
-sed -i \
-    -e "/.*com.dsi.ant.plugins.antplus.*/d" \
-    "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.java"
-sed -i \
-    -e "/.*|| installAntPluginAsked.*/,+13d" \
-    "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.java"
-sed -i \
-    -e "/.*externalsensors.devices.ant.*/d" \
-    "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.java"
-# empty scanAntDevices function, currently only if (enabled) func, do before removing antSearchableDevices
-sed -i \
-    -e "/.*if (enable).*/,+18d" \
-    "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.java"
-sed -i \
-    -e "/.*antSearchableDevices.*/d" \
-    "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.java"
-sed -i \
-    -e "/.*case ANT_.*/,+1d" \
-    "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.java"
-sed -i \
-    -e "s/device instanceof AntAbstractDevice<?>/false/" \
-    "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.java"
+
+patch "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.java" <<-'EOF'
+@@ -25,9 +25,6 @@
+ import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
+ 
+-import com.dsi.ant.plugins.antplus.pcc.AntPlusHeartRatePcc;
+-import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
+-
+ import net.osmand.PlatformUtil;
+ import net.osmand.plus.OsmandApplication;
+ import net.osmand.plus.R;
+@@ -39,12 +36,6 @@
+ import net.osmand.plus.plugins.externalsensors.devices.AbstractDevice;
+ import net.osmand.plus.plugins.externalsensors.devices.AbstractDevice.DeviceListener;
+ import net.osmand.plus.plugins.externalsensors.devices.DeviceConnectionResult;
+-import net.osmand.plus.plugins.externalsensors.devices.ant.AntAbstractDevice;
+-import net.osmand.plus.plugins.externalsensors.devices.ant.AntBikePowerDevice;
+-import net.osmand.plus.plugins.externalsensors.devices.ant.AntBikeSpeedCadenceDevice;
+-import net.osmand.plus.plugins.externalsensors.devices.ant.AntBikeSpeedDistanceDevice;
+-import net.osmand.plus.plugins.externalsensors.devices.ant.AntHeartRateDevice;
+-import net.osmand.plus.plugins.externalsensors.devices.ant.AntTemperatureDevice;
+ import net.osmand.plus.plugins.externalsensors.devices.ble.BLEAbstractDevice;
+ import net.osmand.plus.plugins.externalsensors.devices.ble.BLEBPICPDevice;
+ import net.osmand.plus.plugins.externalsensors.devices.ble.BLEBikeSCDDevice;
+@@ -87,7 +78,6 @@
+ 	private OsmandApplication app;
+ 	protected DevicesSettingsCollection devicesSettingsCollection;
+ 	protected final Map<String, AbstractDevice<?>> devices = new ConcurrentHashMap<>();
+-	private List<AntAbstractDevice<?>> antSearchableDevices = new ArrayList<>();
+ 
+ 	private boolean antScanning;
+ 	private boolean bleScanning;
+@@ -182,11 +172,6 @@
+ 	@Nullable
+ 	protected AbstractDevice<?> createDevice(@NonNull DeviceType deviceType, @NonNull String deviceId, @NonNull DeviceSettings deviceSettings) {
+ 		return switch (deviceType) {
+-			case ANT_HEART_RATE -> new AntHeartRateDevice(deviceId);
+-			case ANT_TEMPERATURE -> new AntTemperatureDevice(deviceId);
+-			case ANT_BICYCLE_POWER -> new AntBikePowerDevice(deviceId);
+-			case ANT_BICYCLE_SC -> new AntBikeSpeedCadenceDevice(deviceId);
+-			case ANT_BICYCLE_SD -> new AntBikeSpeedDistanceDevice(deviceId);
+ 			case BLE_OBD ->
+ 					bluetoothAdapter != null ? new BLEOBDDevice(bluetoothAdapter, deviceId) : null;
+ 			case BLE_TEMPERATURE ->
+@@ -350,7 +335,7 @@
+ 	}
+ 
+ 	boolean isAntDevice(@NonNull AbstractDevice<?> device) {
+-		return device instanceof AntAbstractDevice<?>;
++		return false;
+ 	}
+ 
+ 	boolean isBLEDevice(@NonNull AbstractDevice<?> device) {
+@@ -405,20 +390,6 @@
+ 	}
+ 
+ 	void askAntPluginInstall() {
+-		if (activity == null || installAntPluginAsked) {
+-			return;
+-		}
+-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+-		builder.setTitle(R.string.ant_missing_dependency);
+-		builder.setMessage(app.getString(R.string.ant_missing_dependency_descr, AntPlusHeartRatePcc.getMissingDependencyName()));
+-		builder.setCancelable(true);
+-		builder.setPositiveButton(R.string.ant_go_to_store, (dialog, which) -> {
+-			Uri uri = Uri.parse(Version.getUrlWithUtmRef(app, AntPluginPcc.getMissingDependencyPackageName()));
+-			Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+-			AndroidUtils.startActivityIfSafe(activity, intent);
+-		});
+-		builder.setNegativeButton(R.string.shared_string_cancel, (dialog, which) -> dialog.dismiss());
+-		builder.create().show();
+ 		installAntPluginAsked = true;
+ 	}
+ 
+@@ -612,25 +583,6 @@
+ 	}
+ 
+ 	public void scanAntDevices(boolean enable) {
+-		if (enable) {
+-			antSearchableDevices = Arrays.asList(
+-					AntTemperatureDevice.createSearchableDevice(),
+-					AntHeartRateDevice.createSearchableDevice(),
+-					AntBikeSpeedCadenceDevice.createSearchableDevice(),
+-					AntBikeSpeedDistanceDevice.createSearchableDevice(app),
+-					AntBikePowerDevice.createSearchableDevice());
+-
+-			for (AntAbstractDevice<?> device : antSearchableDevices) {
+-				connectDevice(activity, device);
+-			}
+-			antScanning = true;
+-		} else {
+-			for (AntAbstractDevice<?> device : antSearchableDevices) {
+-				disconnectDevice(device, false);
+-			}
+-			antSearchableDevices = new ArrayList<>();
+-			antScanning = false;
+-		}
+ 	}
+ 
+ 	@SuppressLint("MissingPermission")
+EOF
 
 # COSMETIC: add prohibited to ANT+ since we don't support it
 
@@ -286,6 +366,10 @@ addCheckSum \
     "$core_dir/externals/sqlite/configure.sh"
 
 addCheckSum \
+    a443aaf5cf345613492efa679ef1c9cc31ba109dcdf37ee377f61ab500d042fe \
+    "$core_legacy_dir/externals/sqlite/configure.sh"
+
+addCheckSum \
     c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1 \
     "$core_dir/externals/zlib/configure.sh"
 
@@ -395,6 +479,20 @@ sed -i \
 
 sed -i "s/\"net.osmand.SERVICE_PERMISSION\"/\"net.osmand.plus.SERVICE_PERMISSION\"/g" "$osmand_dir/AndroidManifest.xml"
 
+# BUILD: Reproducible build
+
+patch "$core_dir/wrappers/android/build.gradle" <<-'EOF'
+@@ -230,7 +230,7 @@
+             include "**/*.*"
+         }.collect {
+             it.toURI().normalize().path.substring(resourcesDir.toURI().normalize().path.length())
+-        }
++        }.sort()
+         outputIndexFile.text = resources.join('\n')
+     }
+ }
+EOF
+
 # BUILD: Only build release and required arch of native lib, if a matching arch is passed.
 
 if  [[ "$native_lib_arch" == "armv7" ]]
@@ -478,6 +576,34 @@ then
 	< fi
 	EOF
 fi
+
+# BUILD: Fix the Gradle task order so that a single gradle assembleRelease is sufficient
+
+patch "$core_dir/wrappers/android/build.gradle" <<-'EOF'
+@@ -106,6 +106,7 @@
+ tasks.register('copyNdkSharedLibs', Copy) {
+     description = "Copy NDK shared libraries"
+     dependsOn cleanupNdkSharedLibs
++    mustRunAfter("OsmAndCore_androidNative:buildOsmAndCore")
+ 
+     def ndkRoot = System.getenv("ANDROID_NDK")
+ 
+@@ -151,6 +152,7 @@
+ tasks.register('copyQtSharedLibs', Copy) {
+     description "Copy Qt shared libraries"
+     dependsOn cleanupQtSharedLibs
++    mustRunAfter("OsmAndCore_androidNative:buildOsmAndCore")
+ 
+     from("../../externals/qtbase-android") {
+         include "upstream.patched.android.clang-*.shared/lib/libQt5Core.so"
+@@ -174,6 +176,7 @@
+ tasks.register('copyQtJarLibs', Copy) {
+     description "Copy Qt JAR libraries"
+     dependsOn cleanupQtJarLibs
++    mustRunAfter("OsmAndCore_androidNative:buildOsmAndCore")
+ 
+     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+EOF
 
 # return from whence we came (just in case)
 popd
