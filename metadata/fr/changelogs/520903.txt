@@ -1,0 +1,13 @@
+* Ajout des détails relatifs à la rue et à la ville dans les résultats de recherche
+* Nouveaux widgets d'enregistrement des trajets : vitesse maximale, pente moyenne et amélioration des montées/des descentes
+* Nouveau style de carte nautique « Marine » avec de nombreuses options de personnalisation
+* Amélioration de la vitesse de rendu des cartes
+* Amélioration de la connectivité avec les adaptateurs OBDII BLE
+* Ajout des mesures de fréquence cardiaque à l'option « Analyser par intervalle »
+* Ajout de l'affichage de la durée pour les itinéraires planifiés
+* Les unités d'altitude peuvent désormais être définies séparément des unités de distance
+* Amélioration de l'action rapide d'orientation de la carte avec des modes de boussole sélectionnables
+* Pour Android Auto, ajout d'alertes de pré-navigation pour les cartes manquantes et les routes privées
+* Résolution d'un problème lié à des paramètres de taille incorrects pour le widget Radius Ruler
+* Ajout d'orientations d'écran inversées
+* Amélioration de l'interface utilisateur pour la spécification des mesures relatives aux camions
