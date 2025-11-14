@@ -37,7 +37,7 @@ Once inside the container, you can use the `setup-volume.sh` script to initialis
 
 Next, in the OsmAnd-submodules directory, run the prebuild script with the OsmAnd version you're building. E.g.
 
-    % ./prebuild.sh "5.2.9" "5209" arm64
+    % ./prebuild.sh "5.2.10" "5210" arm64
 
 The final argument can be one of `armv7`, `x86`, `arm64` or empty for all flavours.
 

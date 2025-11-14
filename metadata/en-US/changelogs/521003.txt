@@ -1,0 +1,13 @@
+* Added street and city details to search results
+* New Trip Recording widgets: Max Speed, Average Slope, and improved Uphill/Downhill
+* New "Marine" nautical map style with extensive customization options
+* Improved map rendering speed
+* Enhanced connectivity with OBDII BLE adapters
+* Added heart rate metrics to the "Analyze by Interval"
+* Added duration display for planned tracks
+* Altitude units can now be set separately from distance units
+* Improved the map orientation Quick Action with selectable compass modes
+* For Android Auto, added pre-navigation alerts for missing maps and private roads
+* Resolved an issue with incorrect size parameters for the Radius Ruler widget
+* Added inverted screen orientations
+* Improved the user interface for specifying truck metrics
