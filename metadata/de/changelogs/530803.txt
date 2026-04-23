@@ -1,0 +1,17 @@
+* Unterstützung für 3D-Gebäude hinzugefügt
+* Globusansicht
+* Astronomie-Erweiterung mit Karte des Nachthimmels und Sternen-Datenbank
+* Neue Farb-Modi für Tacho: Toleranz und Überschreitung
+* Unterschiedliche Widget-Darstellung für Quer- und Hochformat
+* Widgets für Fahrtaufzeichnung: Bewegungsgeschwindigkeit und Durchschnittsgeschwindigkeit
+* Widget für Adapter-Spannung für Fahrzeugdaten
+* Fahrzeugdaten im Track-Analyzer
+* Automatische Sortierung von Tracks nach Jahr, Länge, Aktivität & mehr
+* Paletten-Editor für Visualisierung von Gelände und Tracks
+* Verbesserte Suchalgorithmen und neue Benutzerschnittstelle
+* Höhenprofile für Strecken repariert
+* Favoriten: Neue Sortierfilter und neue Benutzerschnittstelle
+* Link zu beliebigem POI teilen
+* Wegpunkt-Vorschau ohne die Liste zu schließen
+* Parameter „Fahrradbreite“ um schmale Straßen zu vermeiden
+* Bildbeschreibungen von Wikimedia
