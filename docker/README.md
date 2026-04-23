@@ -37,7 +37,7 @@ Once inside the container, you can use the `setup-volume.sh` script to initialis
 
 Next, in the OsmAnd-submodules directory, run the prebuild script with the OsmAnd version you're building. E.g.
 
-    % ./prebuild.sh "5.2.13" "5213" arm64
+    % ./prebuild.sh "5.3.7" "5307" arm64
 
 The final argument can be one of `armv7`, `x86`, `arm64` or empty for all flavours.
 
@@ -56,4 +56,4 @@ Change `Arm64` for `Armv7` or `X86` or `Fat` (all flavours) as required.
 
 In total, the process takes about 2.5 hours on my machine.
 
-You can find the APK in `build/ouputs/...../Osmand-...-release.apk`.
+You can find the APK in `build/outputs/...../OsmAnd-....apk`.
