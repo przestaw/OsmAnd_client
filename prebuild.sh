@@ -150,7 +150,16 @@ patch "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.jav
  			case BLE_OBD ->
  					bluetoothAdapter != null ? new BLEOBDDevice(bluetoothAdapter, deviceId) : null;
  			case BLE_TEMPERATURE ->
-@@ -350,7 +335,7 @@
+@@ -326,7 +311,7 @@
+ 
+ 	void updateDevice(@Nullable Activity activity, @NonNull AbstractDevice<?> device) {
+ 		if (isDeviceEnabled(device) && device.isDisconnected()) {
+-			if (device instanceof AntAbstractDevice<?> || (activity != null && BLEUtils.INSTANCE.isBLEEnabled(activity))) {
++			if (activity != null && BLEUtils.INSTANCE.isBLEEnabled(activity)) {
+ 				connectDevice(activity, device);
+ 			}
+ 		} else if (!isDeviceEnabled(device) && device.isConnected()) {
+@@ -352,7 +337,7 @@
  	}
  
  	boolean isAntDevice(@NonNull AbstractDevice<?> device) {
@@ -159,7 +168,7 @@ patch "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.jav
  	}
  
  	boolean isBLEDevice(@NonNull AbstractDevice<?> device) {
-@@ -405,20 +390,6 @@
+@@ -407,20 +392,6 @@
  	}
  
  	void askAntPluginInstall() {
@@ -180,7 +189,7 @@ patch "$osmand_dir/src/net/osmand/plus/plugins/externalsensors/DevicesHelper.jav
  		installAntPluginAsked = true;
  	}
  
-@@ -612,25 +583,6 @@
+@@ -614,25 +585,6 @@
  	}
  
  	public void scanAntDevices(boolean enable) {
@@ -222,25 +231,135 @@ sed -i \
     -e "s!openglImplementation.*OsmAndCore_android:.*!openglImplementation\", files(\"libs/OsmAndCore_android-release.aar\"))!" \
     "$osmand_dir/build.gradle"
 
-# BUILD: MPChartLib needs a bit a hack because of a gradle version issue
-sed -i \
-    -e "s/android {/android { lintOptions { checkReleaseBuilds false }/" \
-    "$mpchartlib_dir/MPChartLib/build.gradle"
+# BUILD: Set the compile versions for ICU to one supported by OpenJDK 21
+sed -i "s/\^11/\^21/g" "$icu_dir/icu4j/build.xml"
+sed -i "s/javac.source = 1.6/javac.source = 21/g" "$icu_dir/icu4j/main/shared/build/common.properties"
+sed -i "s/javac.target = 1.6/javac.target = 21/g" "$icu_dir/icu4j/main/shared/build/common.properties"
+sed -i "s/javac.source = 1.6/javac.source = 21/g" "$icu_dir/icu4j/main/classes/localespi/build.properties"
+sed -i "s/javac.target = 1.6/javac.target = 21/g" "$icu_dir/icu4j/main/classes/localespi/build.properties"
+
+# BUILD: remove MPChartLib example
 rm -r "$mpchartlib_dir/MPChartExample"
 
-# BUILD: Set the compile versions for ICU to one supported by OpenJDK 17
-sed -i "s/\^11/\^17/g" "$icu_dir/icu4j/build.xml"
-sed -i "s/javac.source = 1.6/javac.source = 17/g" "$icu_dir/icu4j/main/shared/build/common.properties"
-sed -i "s/javac.target = 1.6/javac.target = 17/g" "$icu_dir/icu4j/main/shared/build/common.properties"
-sed -i "s/javac.source = 1.6/javac.source = 17/g" "$icu_dir/icu4j/main/classes/localespi/build.properties"
-sed -i "s/javac.target = 1.6/javac.target = 17/g" "$icu_dir/icu4j/main/classes/localespi/build.properties"
+patch "$mpchartlib_dir/settings.gradle" <<-'EOF'
+@@ -1,6 +1,6 @@
+ include 'MPChartLib'
+ //include 'MPAndroidChart-Realm'
+-include 'MPChartExample'
++//include 'MPChartExample'
+ //include ':MPChartLib-Realm'
+ //project(':MPChartLib-Realm').projectDir = new File('../MPAndroidChart-Realm/MPChartLib-Realm')
+EOF
 
 # BUILD: MPChartLib needs publishing to builder.osmand.net removing
 # The site no longer exists and it causes dependency resolution errors even
 # though not needed.
+# Support OpenJDK 21.
+patch "$mpchartlib_dir/MPChartLib/build.gradle" <<-'EOF'
+@@ -1,14 +1,13 @@
+ apply plugin: 'com.android.library'
+-apply plugin: 'ivy-publish'
+ 
+-group='com.github.philjay'
++group = 'com.github.philjay'
+ 
+ android {
+-    compileSdkVersion 28
+-    buildToolsVersion '28.0.3'
++    namespace 'com.github.mikephil.charting'
++    compileSdkVersion 35
+     defaultConfig {
+         minSdkVersion 14
+-        targetSdkVersion 28
++        targetSdkVersion 35
+         versionCode 3
+         versionName '3.1.0'
+     }
+@@ -23,32 +22,6 @@ android {
+     }
+ }
+ 
+-afterEvaluate {
+-    publishing {
+-        repositories {
+-            ivy {
+-                url = System.getenv("OSMAND_BINARIES_IVY_ROOT") ?: "./"
+-            }
+-        }
+-        publications {
+-            release(IvyPublication) {
+-                // Applies the component for the release build variant.
+-                from components.release
+-                organisation = 'net.osmand'
+-                module = 'MPAndroidChart'
+-                revision = 'custom-snapshot-release'
+-            }
+-            debug(IvyPublication) {
+-                // Applies the component for the release build variant.
+-                from components.debug
+-                organisation = 'net.osmand'
+-                module = 'MPAndroidChart'
+-                revision = 'custom-snapshot-debug'
+-            }
+-        }
+-    }
+-}
+-
+ dependencies {
+     implementation 'androidx.annotation:annotation:1.0.0'
+     testImplementation 'junit:junit:4.12'
+@@ -56,7 +29,7 @@ dependencies {
+ 
+ task sourcesJar(type: Jar) {
+     from android.sourceSets.main.java.srcDirs
+-    classifier = 'sources'
++    archiveClassifier = 'sources'
+ }
+ 
+ task javadoc(type: Javadoc) {
+@@ -67,7 +40,7 @@ task javadoc(type: Javadoc) {
+ }
+ 
+ task javadocJar(type: Jar, dependsOn: javadoc) {
+-    classifier = 'javadoc'
++    archiveClassifier = 'javadoc'
+     from javadoc.destinationDir
+ }
+EOF
 
-sed -i -e "/.*ivy {/,+6d" "$mpchartlib_dir/build.gradle"
-sed -i -e "/.*afterEvaluate {/,+24d" "$mpchartlib_dir/MPChartLib/build.gradle"
+patch "$mpchartlib_dir/build.gradle" <<-'EOF'
+@@ -4,20 +4,12 @@ buildscript {
+         mavenCentral()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:4.2.2'
+-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
++        classpath 'com.android.tools.build:gradle:8.5.2'
+     }
+ }
+ 
+ allprojects {
+     repositories {
+-        ivy {
+-            name = "OsmAndBinariesIvy"
+-            url = "https://builder.osmand.net"
+-            patternLayout {
+-                artifact "ivy/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+-            }
+-        }
+         google()
+         mavenCentral()
+     }
+EOF
+
+patch "$mpchartlib_dir/gradle/wrapper/gradle-wrapper.properties" <<-'EOF'
+@@ -3,4 +3,4 @@ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-7.5.1-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
+EOF
 
 # BUILD: Use legacy packaging else installation will fail with native
 # libs error (-2)
@@ -604,6 +723,22 @@ patch "$core_dir/wrappers/android/build.gradle" <<-'EOF'
  
      duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 EOF
+
+# BUILD: Set the compile versions for qtbase-android to one supported by OpenJDK 21
+
+patch "$core_dir/externals/qtbase-android/build.sh" <<-'EOF'
+@@ -95,6 +95,7 @@ QTBASE_CONFIGURATION=$(echo "
+ 	-nomake tests -nomake examples -nomake tools -no-gui -no-widgets -no-cups -no-iconv -no-icu -no-dbus
+ 	-no-xcb -no-eglfs -no-directfb -no-linuxfb -no-kms -no-opengl -no-glib
+ 	-no-use-gold-linker
++	-android-javac-source 8 -android-javac-target 8
+ 	-v
+ " | tr '\n' ' ')
+EOF
+
+# BUILD: Disable OsmAnd-java tests, because some will fail due to test resources (gzip files) being removed by "scandelete: - resources/test-resources" (metadata)
+
+rm -r "$osmand_java_dir/src/test/java"
 
 # return from whence we came (just in case)
 popd
