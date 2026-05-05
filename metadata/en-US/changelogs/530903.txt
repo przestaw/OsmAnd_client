@@ -1,0 +1,17 @@
+* 3D Buildings support added
+* Spherical map view
+* Astronomy plugin with night map and star database
+* New color modes for Speedometer: tolerance and speeding
+* Separate widget layouts for Landscape and Portrait
+* Trip recording widgets: Moving speed and Average speed
+* Adapter voltage widget for Vehicle Metrics
+* Vehicle metrics data in Track Analyzer
+* Auto-organize tracks by year, length, activity & more
+* Palette editor for Terrain and Track visualization
+* Improved search algorithms & refreshed UI
+* Elevation profiles fixed for Routes
+* Favorites: new sorting options and UI refresh
+* Share link to any POI
+* Waypoint preview without closing the list
+* Bicycle width parameter to avoid narrow roads
+* Photo descriptions from Wikimedia
