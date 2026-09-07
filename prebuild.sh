@@ -62,10 +62,10 @@ sed -i \
 sed -i \
     -e "s/System.getenv(\"TARGET_APP_NAME\")/\"OsmAnd~\"/g" \
     "$osmand_dir/build.gradle"
+
 # BUILD: Remove upstream non-free code including self-hosted pre-built
 # binaries. In particular, the OsmAnd core renderer and company code for
 # e.g. billing.
-
 sed -i \
     -e "/.*mplementation.*OsmAndCore.*/d" \
     -e "/play-services-location/d" \
@@ -82,7 +82,7 @@ sed -i \
     "$osmand_dir/build-common.gradle"
 
 perl -i -0 -p \
-    -e "s|maven \{\n\s*url 'https://developer.huawei.com/repo/'\n\s*}||g" \
+    -e "s|maven\s*\{[^}]*?url\s+'https://developer\.huawei\.com/repo/'[^}]*?content\s*\{[^}]*?\}[^}]*?\}||gs" \
     "$android_dir/build.gradle"
 sed -i \
     -e "/huaweiImplementation/d" \
@@ -547,12 +547,6 @@ sed -i \
     <uses-permission \
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />!' \
     "$osmand_dir/AndroidManifest.xml"
-
-# CUSTOM: Remove Mapilliary promotion. See !11525, !11480, and #2701.
-
-sed -i \
-    '/MapillaryPlugin/d' \
-    "$osmand_dir/src/net/osmand/plus/mapcontextmenu/builders/cards/NoImagesCard.java"
 
 # BUILD (non-essential): remove signing configs (done by FDroid anyway, but
 # needed for standalone build to succeed).

@@ -1,0 +1,13 @@
+* Refreshed search UI: sorting, category filters, cleaner look
+* Attach photos and media to Favorites
+* Favorites: subgroups support and pinnable folders
+* New widgets appearance
+* Roof shapes for 3D Buildings
+* Coordinates: search, map grid, and POI display now support EPSG and Maidenhead locator
+* Navigation settings improvements
+* Android Auto updates
+* Astronomy added solar & lunar eclipses
+* AIS improvements
+* New spatial search — find places and search around a place
+* Others updates and improvements
+* Bug fixes
