@@ -361,6 +361,23 @@ patch "$mpchartlib_dir/gradle/wrapper/gradle-wrapper.properties" <<-'EOF'
 +distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
 EOF
 
+# BUILD: Make sure that libosmand.so (legacy core) is included in the APK
+
+patch "$osmand_dir/build.gradle" <<-'EOF'
+@@ -206,6 +206,11 @@
+ 
+ afterEvaluate {
+ 	android.applicationVariants.configureEach { variant ->
++	        def mergeJniTaskName = "merge${variant.name.capitalize()}JniLibFolders"
++		tasks.named(mergeJniTaskName).configure {
++			dependsOn buildOsmAndCore
++		}
++
+ 		if (variant.name.contains('Opengldebug')) {
+ 			variant.javaCompileProvider.configure {
+ 				dependsOn collectExternalResources, buildOsmAndCore, copyOsmAndCoreWithJNI, cleanupDuplicatesInCore
+EOF
+
 # BUILD: Use legacy packaging else installation will fail with native
 # libs error (-2)
 

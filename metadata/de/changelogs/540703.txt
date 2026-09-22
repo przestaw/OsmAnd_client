@@ -1,0 +1,8 @@
+* Überarbeitete Benutzeroberfläche für die Suche: Sortierung, Kategoriefilter, übersichtlicheres Design
+* Fotos und Medien zu Favoriten hinzufügen
+* Favoriten: Unterstützung von Untergruppen und anheftbare Ordner
+* Koordinaten: Suche, Kartengitter und POI-Anzeige unterstützen jetzt EPSG und den Maidenhead-Locator
+* Navigationsunterbrechungen behoben; Umschaltung zwischen Standard- und schneller Routenführung
+* Kartenskalierung für Android Auto separat vom Smartphone einstellen
+* Neue räumliche Suche — Orte finden und in der Umgebung eines Ortes suchen
+* Astronomie: Sonnen- und Mondfinsternisse hinzugefügt
