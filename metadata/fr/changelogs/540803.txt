@@ -1,0 +1,8 @@
+* Interface de recherche repensée : tri, filtres par catégorie, présentation plus épurée
+* Ajoutez des photos et des fichiers multimédias à vos Favoris
+* Favoris : prise en charge des sous-groupes et des dossiers épinglables
+* Coordonnées : la recherche, la grille cartographique et l’affichage des points d’intérêt prennent désormais en charge les systèmes de localisation EPSG et Maidenhead
+* Correction des interruptions de navigation ; basculez entre les itinéraires « Standard » et « Rapide »
+* Définissez l’échelle de la carte Android Auto indépendamment de celle de votre téléphone
+* Nouvelle recherche spatiale : trouvez des lieux et effectuez des recherches autour d'un lieu
+* Extension Astronomie : ajout des éclipses solaires et lunaires

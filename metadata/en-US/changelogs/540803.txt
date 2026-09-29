@@ -1,0 +1,8 @@
+* Refreshed search UI: sorting, category filters, cleaner look
+* Attach photos and media to Favorites
+* Favorites: subgroups support and pinnable folders
+* Coordinates: search, map grid, and POI display now support EPSG and Maidenhead locator
+* Fixed navigation interruptions; switch between Standard and Fast routing
+* Set Android Auto map scale separately from your phone
+* New spatial search — find places and search around a place
+* Astronomy added solar & lunar eclipses
