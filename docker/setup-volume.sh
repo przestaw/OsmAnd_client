@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git clone https://gitlab.com/f-droid-mirrors/OsmAnd-submodules.git
+git clone https://github.com/przestaw/OsmAnd_client.git OsmAnd-submodules
 pushd OsmAnd-submodules
 git submodule init
 git submodule update --depth 1
