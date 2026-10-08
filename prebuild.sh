@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # Arguments: the FDroid build script variables:
 #  * $$VERSION$$
@@ -63,6 +63,16 @@ sed -i \
     -e "s/System.getenv(\"TARGET_APP_NAME\")/\"OsmAnd~\"/g" \
     "$osmand_dir/build.gradle"
 
+sed -i \
+    -e '/androidFull {/,/}/s/applicationId "net.osmand.plus"/applicationId "pl.przestaw.osmand"/' \
+    "$osmand_dir/build.gradle"
+sed -i \
+    -e 's/android:authorities="net.osmand.plus.fileprovider"/android:authorities="${applicationId}.fileprovider"/' \
+    "$osmand_dir/AndroidManifest.xml"
+sed -i \
+    -e 's/FULL_VERSION_NAME = "net.osmand.plus"/FULL_VERSION_NAME = "pl.przestaw.osmand"/' \
+    "$osmand_dir/src/net/osmand/plus/Version.java"
+
 # BUILD: Remove upstream non-free pre-built binaries (OsmAnd core renderer, MPAndroidChart).
 # CUSTOM: play-services-location is intentionally kept (see location services block below).
 sed -i \
@@ -86,6 +96,7 @@ sed -i \
     "$osmand_dir/build.gradle"
 
 sed -i \
+    -e "/^[[:space:]]*include ':OsmAnd-telegram'[[:space:]]*$/d" \
     -e "s/, ':OsmAnd-telegram'//" \
     "$android_dir/settings.gradle"
 
@@ -540,7 +551,7 @@ perl -i -0 -p \
 
 # CUSTOM: The following block has been disabled to keep Google Play Services
 # location support (GmsLocationServiceHelper stays, selectable via the
-# existing location_source preference, with AndroidApi fallback intact).
+# existing location_source preference; AndroidApi remains a manual alternative).
 : << 'DISABLED_LOCATION_SERVICES_REMOVAL'
 # BUILD: Remove location services that needs Google stuff
 
