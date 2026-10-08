@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # Arguments: the FDroid build script variables:
 #  * $$VERSION$$
@@ -42,9 +42,9 @@ sed -i '/set(ANDROID_SDK_BUILD_TOOLS_REVISION "$ENV{ANDROID_SDK_BUILD_TOOLS_REVI
 echo -e "\norg.gradle.jvmargs=-XX:MaxHeapSize=4096m" \
     >> "$android_dir/gradle.properties"
 
-# BUILD: Remove OsmAnd self-hosted ivy binary repository.
+# BUILD: Restrict OsmAnd Ivy repository to antpluginlib only.
 sed -i \
-    -e "/ivy {/,+6d" \
+    -e "/name = \"OsmAndBinariesIvy\"/{n;n;n;n;s/^            }$/            }\n            content {\n                includeModule(\"net.osmand\", \"antpluginlib\")\n            }/}" \
     "$android_dir/build.gradle"
 
 # BUILD: Remove maven publishing as it trips up the build now.
@@ -63,17 +63,14 @@ sed -i \
     -e "s/System.getenv(\"TARGET_APP_NAME\")/\"OsmAnd~\"/g" \
     "$osmand_dir/build.gradle"
 
-# BUILD: Remove upstream non-free code including self-hosted pre-built
-# binaries. In particular, the OsmAnd core renderer and company code for
-# e.g. billing.
+# BUILD: Remove upstream non-free pre-built binaries (OsmAnd core renderer, MPAndroidChart).
+# CUSTOM: play-services-location is intentionally kept (see location services block below).
 sed -i \
     -e "/.*mplementation.*OsmAndCore.*/d" \
-    -e "/play-services-location/d" \
     -e '/MPAndroidChart/d' \
     "$osmand_dir/build-common.gradle"
 sed -i \
     -e "/.*mplementation.*OsmAndCore.*/d" \
-    -e "/play-services-location/d" \
     -e '/MPAndroidChart/d' \
     "$osmand_dir/build-library.gradle"
 
@@ -99,6 +96,8 @@ sed -i \
     -e "/.*com.android.billingclient.*/d" \
     "$osmand_dir/build-common.gradle"
 
+# ANT+: The following block has been disabled to restore ANT+ support.
+: << 'DISABLED_ANT_REMOVAL'
 # BUILD: remove ANT+ code from sensors framework
 sed -i \
     -e "/.*antpluginlib.*/d" \
@@ -222,6 +221,7 @@ EOF
 sed -i \
     -e "s/ANT+/ANT+ (\&#x1F6AB;)/g" \
     "$osmand_dir"/res/**/strings.xml
+DISABLED_ANT_REMOVAL
 
 # BUILD: Switch OsmAndCore_android to the OpenGL core built in build.sh
 
@@ -538,6 +538,10 @@ perl -i -0 -p \
     -e 's|<Preference\n.*android:key="purchases_settings"(.*\n){9}||g' \
     "$osmand_dir/res/xml/settings_main_screen.xml"
 
+# CUSTOM: The following block has been disabled to keep Google Play Services
+# location support (GmsLocationServiceHelper stays, selectable via the
+# existing location_source preference, with AndroidApi fallback intact).
+: << 'DISABLED_LOCATION_SERVICES_REMOVAL'
 # BUILD: Remove location services that needs Google stuff
 
 rm "$osmand_dir/src/net/osmand/plus/helpers/GmsLocationServiceHelper.java"
@@ -551,6 +555,7 @@ sed -i \
     -e 's/android:key="location_source"/\
     android:key="location_source" app:isPreferenceVisible="false"/' \
     "$osmand_dir/res/xml/global_settings.xml"
+DISABLED_LOCATION_SERVICES_REMOVAL
 
 # CUSTOM: Enable file manager permission and remove warning about not
 # being able to access files. See #2691.
